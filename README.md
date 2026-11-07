@@ -13,27 +13,27 @@ is wrong. Enterprise AI Pilot is built around those questions from day one.
 
 ## What it does
 
-- **Answers from your own documents.** Policies, handbooks, runbooks, reports. Every answer
-  names the documents it came from, so people can check it.
+- **Answers from your own documents.** Policies, handbooks, runbooks, reports. Answers cite
+  the documents they came from, so people can check them.
 - **Respects access rights.** Someone in engineering and someone in HR can ask the same
   question and get different answers, because each person only ever sees the documents their
   role permits. Restricted content is filtered out before the AI model sees anything.
 - **Says "I don't know" instead of guessing.** If nothing the user may see answers the
   question, the assistant declines rather than inventing an answer.
-- **Hides personal data in answers.** Email addresses, phone numbers, bank account numbers and
-  national identity codes are masked before an answer is shown, and are kept out of the logs.
+- **Hides personal data in answers.** Email addresses, phone numbers, IBANs and Finnish personal
+  identity codes are masked before an answer is shown, and are kept out of the logs.
 - **Resists manipulation.** Questions and documents are screened for prompt-injection attempts,
   such as text that tries to override the assistant's instructions.
 - **Checks its own citations.** References to documents the model was not given are removed,
   and answers without a traceable source are flagged.
-- **Keeps a tamper-evident audit trail.** Every request is recorded, and administrators can
-  verify that no record has been altered or removed.
+- **Keeps a tamper-evident audit trail.** Every request is recorded in a hash-linked log, and
+  administrators can verify that the audit chain is intact.
 
 ## Choose where the AI runs
 
 | Option | Good fit for |
 |---|---|
-| **Cloud AI model** | Best answer quality, quick start |
+| **Cloud AI model** | Best answer quality, quick start. The user's question and the retrieved document text are sent to the model provider, so use an EU-hosted endpoint or the local option for sensitive data. |
 | **Local model on your own server** | Documents and questions never leave your network |
 | **Offline mode** | Demos and testing without any AI service |
 
@@ -58,10 +58,33 @@ decides what the model may see and what the user may receive.
 
 ## Quality you can measure
 
-Every release runs through automated tests and an evaluation suite with hard pass/fail gates:
-correct answers with the right source, zero leaks across roles, refusal of questions the
-documents cannot answer, blocked manipulation attempts, and an intact audit trail. A release
-that fails any gate does not ship.
+Every change runs through automated tests and an evaluation suite with hard pass/fail gates,
+and the build fails if any gate fails. Results on the current version:
+
+| Gate | Result |
+|---|---|
+| Automated tests | 66 passed |
+| Correct answer with the right source | 5 / 5 |
+| Answers leaking another role's documents | 0 |
+| Unanswerable questions refused | 3 / 3 |
+| Answers with a valid citation | 5 / 5 |
+| Manipulation attempt in the question | blocked |
+| Audit chain | intact |
+
+## Current status
+
+The current version is a pilot build, not a finished enterprise product. Production
+deployments add, as part of the pilot:
+
+- single sign-on and group-based roles in place of the demo identities,
+- semantic search tuned on the customer's documents,
+- shared rate limiting and environment-specific hardening for multi-server setups.
+
+Known limits today: manipulation and personal-data detection are pattern based, so they are
+layered with access control, refusal and auditing rather than relied on alone; citation checks
+confirm the source, not that it fully supports the claim; and the audit chain detects edited
+or removed records within the log, while full tamper evidence also needs the chain anchored in
+an external, write-once store.
 
 ## Who it is for
 
@@ -72,7 +95,7 @@ questions, IT and engineering runbooks, and internal finance or operations repor
 ## Pilots and access
 
 We run focused pilots on a customer's own documents and access model, in the cloud or on
-premises. To discuss a pilot or see a live demo, contact the author through the GitHub
-profile.
+premises. To discuss a pilot or see a live demo:
+[onur@trihonor.com](mailto:onur@trihonor.com) · [LinkedIn](https://www.linkedin.com/in/onur-kapucu/)
 
 © 2026 Onur Kapucu. All rights reserved.
