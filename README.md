@@ -26,6 +26,8 @@ is wrong. Enterprise AI Pilot is built around those questions from day one.
   such as text that tries to override the assistant's instructions.
 - **Checks its own citations.** References to documents the model was not given are removed,
   and answers without a traceable source are flagged.
+- **Tells people they are using AI.** A notice in English and Finnish is shown before the first
+  question, and every answer is labelled as AI-generated.
 - **Keeps a tamper-evident audit trail.** Every request is recorded in a hash-linked log, and
   administrators can verify that the audit chain is intact.
 
@@ -33,12 +35,22 @@ is wrong. Enterprise AI Pilot is built around those questions from day one.
 
 | Option | Good fit for |
 |---|---|
-| **Cloud AI model** | Best answer quality, quick start. The user's question and the retrieved document text are sent to the model provider, so use an EU-hosted endpoint or the local option for sensitive data. |
+| **Claude on Amazon Bedrock in the EU (Stockholm)** | Strong answers with processing kept in an EU region. The user's question and the retrieved document text are sent to the model in that region. |
 | **Local model on your own server** | Documents and questions never leave your network |
 | **Offline mode** | Demos and testing without any AI service |
 
-The model can be chosen per question, and if a model is unavailable the assistant falls back
-to a simpler answer instead of failing.
+Models that process data outside the EU are switched off by default, and the assistant refuses
+to start if its main model is not EU or local. Which models are enabled is the operator's choice,
+and the model picker can be locked to one. If a model is unavailable, the assistant falls back to
+a simpler answer instead of failing. Which Claude models are available is set by AWS for each
+account, so it is confirmed during each pilot's setup.
+
+### EU processing, tested
+
+In a test from Stockholm on 7 November 2026, the assistant answered real questions through Claude
+on Amazon Bedrock, and AWS's own audit log (CloudTrail) recorded the processing region as
+`eu-north-1` for every model call. This is evidence from a demo account, not a guarantee: it is
+checked again in each pilot's own AWS account.
 
 ## How a question is handled
 
@@ -63,7 +75,7 @@ and the build fails if any gate fails. Results on the current version:
 
 | Gate | Result |
 |---|---|
-| Automated tests | 66 passed |
+| Automated tests | 109 passed |
 | Correct answer with the right source | 5 / 5 |
 | Answers leaking another role's documents | 0 |
 | Unanswerable questions refused | 3 / 3 |
@@ -73,11 +85,12 @@ and the build fails if any gate fails. Results on the current version:
 
 ## Current status
 
-The current version is a pilot build, not a finished enterprise product. Production
-deployments add, as part of the pilot:
+The current version is a pilot build, not a finished enterprise product. It is designed to
+support a customer's EU AI Act and GDPR work, not certified as compliant. Production deployments
+add, as part of the pilot:
 
 - single sign-on and group-based roles in place of the demo identities,
-- semantic search tuned on the customer's documents,
+- semantic search tuned on the customer's documents, including Finnish-language search,
 - shared rate limiting and environment-specific hardening for multi-server setups.
 
 Known limits today: manipulation and personal-data detection are pattern based, so they are
@@ -94,8 +107,9 @@ questions, IT and engineering runbooks, and internal finance or operations repor
 
 ## Pilots and access
 
-We run focused pilots on a customer's own documents and access model, in the cloud or on
-premises. To discuss a pilot or see a live demo:
+We run focused pilots on a customer's own documents and access model: in a dedicated AWS
+account in Stockholm, or on the customer's own servers with a local model. To discuss a pilot or
+see a live demo:
 [onur@trihonor.com](mailto:onur@trihonor.com) · [LinkedIn](https://www.linkedin.com/in/onur-kapucu/)
 
 © 2026 Onur Kapucu. All rights reserved.
